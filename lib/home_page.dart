@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:cru_recognition/models/data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker_modern/image_picker_modern.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:tflite/tflite.dart';
+
+import 'models/data.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -19,62 +22,87 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _loading;
   File _image;
   final picker = ImagePicker();
+  List _outputs;
+  String _result;
+  String index;
+  String indexTrim;
 
   DataModel getDatamodel() {
     return dataModel;
   }
 
-  Future pickImage() async {
-    final image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if (image == null) return null;
+  @override
+  void initState() {
+    _loading = true;
+    loadModel().then((value) {
+      setState(() {
+        _loading = false;
+      });
+    });
+    super.initState();
+  }
+
+  Future pickImage(FileType fileType) async {
+    if (fileType == FileType.Camera) {
+      final pickedFile = await picker.getImage(
+        source: ImageSource.camera,
+      );
+      if (pickedFile == null) return null;
+      setState(() {
+        try {
+          _loading = true;
+          _image = File(pickedFile.path);
+        } catch (e) {
+          print(e);
+        }
+      });
+    } else if (fileType == FileType.Gallery) {
+      final pickedFile = await picker.getImage(
+        source: ImageSource.gallery,
+      );
+      if (pickedFile == null) return null;
+      setState(() {
+        try {
+          _loading = true;
+          _image = File(pickedFile.path);
+        } catch (e) {
+          print(e);
+        }
+      });
+      // if (image == null) return null;
+      // setState(() {
+      //   try {
+      //     _loading = true;
+      //     _image = File(image.path);
+      //   } catch (e) {
+      //     print(e);
+      //   }
+      // });
+    }
+    classifyImage(_image);
+  }
+
+  classifyImage(File image) async {
+    var output = await Tflite.runModelOnImage(
+        path: image.path,
+        numResults: 2,
+        threshold: 0.5,
+        imageMean: 127.5,
+        imageStd: 127.5);
     setState(() {
       try {
-        _loading = true;
-        _image = File(image.path);
+        _loading = false;
+        _outputs = output;
+        _result = _outputs[0]["label"].toString();
+        print(_outputs[0]["confidence"]);
+        index = _result.substring(0, 2);
+        indexTrim = index.trim();
+        print(indexTrim);
       } catch (e) {
         print(e);
       }
     });
-    // classifyImage(_image);
   }
-
-  //   enum FileType {
-  //   Gallery,
-  //   Camera,
-  //   Video,
-  // }
-  // final imagePicker = ImagePicker();
-  //   PickedFile pickedFile;
-  //   if (fileType == FileType.Camera) {
-  //     // Camera Part
-  //     pickedFile = await imagePicker.getImage(
-  //       source: ImageSource.camera,
-  //       maxWidth: 480,
-  //       maxHeight: 640,
-  //       imageQuality: 25, // pick your desired quality
-  //     );
-  //     setState(() {
-  //       if (pickedFile != null) {
-  //         _storedFile = File(pickedFile.path);
-  //       } else {
-  //         print('No image selected.');
-  //         return;
-  //       }
-  //     });
-  //   } else if (fileType == FileType.Gallery) {
-  //     // Gallery Part
-  //     pickedFile = await imagePicker.getImage(
-  //       source: ImageSource.gallery,
-  //       maxWidth: 480,
-  //       maxHeight: 640,
-  //       imageQuality: 25,
-  //     );
-  //       } else {
-  //         print('No image selected.');
-  //         return;
-  //       }
-  //     });
-  //   }
 
   @override
   Widget build(BuildContext context) {
@@ -93,10 +121,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: TextStyle(fontSize: 20.0),
                     )),
                   )
-                : Image.file(
-                    _image,
-                    width: Get.width,
+                : Container(
                     height: Get.width,
+                    width: Get.width,
+                    child: Image.file(
+                      _image,
+                      fit: BoxFit.fill,
+                    ),
                   ),
           ),
         ),
@@ -113,62 +144,77 @@ class _MyHomePageState extends State<MyHomePage> {
                 )
               ],
               color: Color(0xFFFFBB24),
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32), topRight: Radius.circular(32)),
             ),
             height: Get.height * 0.6,
             width: Get.width,
             child: Padding(
               padding: EdgeInsets.all(32),
               child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      // dataModel.title,
-                      'title',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.fade,
-                    ),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    Row(
-                      children: [
-                        Text('location :'),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    Row(
-                      children: [
-                        Text('contact :'),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    Row(
-                      children: [
-                        Text('major :'),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    Text('description :'),
-                  ],
-                ),
+                child: _outputs != null
+                    // && _outputs[0]["confidence"] > 0.85
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                width: Get.width * 0.5,
+                                child: Text(
+                                  mockData[int.tryParse(indexTrim)]["title"],
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 16,
+                          ),
+                          Text(
+                              mockData[int.tryParse(indexTrim)]["description"]),
+                        ],
+                      )
+                    : Container(),
               ),
             ),
           ),
         ),
         Positioned(
-          top: 20,
-          child: Container(height: 64, width: 32, color: Colors.red),
+          top: 300,
+          left: 32,
+          child: Container(
+            child: _image != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.file(
+                      _image,
+                      fit: BoxFit.fill,
+                    ),
+                  )
+                : Image.asset("assets/logo.png"),
+            decoration: BoxDecoration(
+              border: Border.all(width: 2.0, color: const Color(0xFFFFFFFF)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(2, 2),
+                  blurRadius: 6,
+                  spreadRadius: 2,
+                  color: Color(0xFF303030).withOpacity(0.25),
+                )
+              ],
+            ),
+            height: Get.height * 0.2,
+            width: Get.width * 0.3,
+          ),
         ),
         Positioned(
           right: 20.0,
@@ -176,7 +222,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: FloatingActionButton(
             backgroundColor: Color(0xFFFFBB24),
             onPressed: () {
-              pickImage();
+              _showPicker(context);
+              // pickImage();
             },
             tooltip: 'add photo',
             child: Icon(Icons.add_a_photo),
@@ -185,4 +232,50 @@ class _MyHomePageState extends State<MyHomePage> {
       ]),
     );
   }
+
+  void _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: Wrap(
+                children: <Widget>[
+                  ListTile(
+                      leading: Icon(Icons.photo_library),
+                      title: Text('Photo Library'),
+                      onTap: () {
+                        pickImage(FileType.Gallery);
+                      }),
+                  ListTile(
+                    leading: Icon(Icons.photo_camera),
+                    title: Text('Camera'),
+                    onTap: () {
+                      pickImage(FileType.Camera);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  loadModel() async {
+    await Tflite.loadModel(
+      model: "assets/model_unquant.tflite",
+      labels: "assets/labels.txt",
+    );
+  }
+
+  void dispose() {
+    Tflite.close();
+    super.dispose();
+  }
+}
+
+enum FileType {
+  Gallery,
+  Camera,
+  Video,
 }

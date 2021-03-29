@@ -22,6 +22,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan QR codes and take picture user for verify customer</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>App Baac ต้องการเข้าถึงคลังภาพของคุณเพื่อให้คุณเลือก Qrcode ได้</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>App Baac ต้องการเข้าถึงคลังภาพของคุณเพื่อให้คุณเลือก Qrcode ได้</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

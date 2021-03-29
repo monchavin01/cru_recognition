@@ -23,8 +23,8 @@ class DataModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['account_no'] = this.title;
-    data['account_nickname'] = this.location;
+    data['title'] = this.title;
+    data['location'] = this.location;
     data['contact'] = this.contact;
     data['major'] = this.major;
     data['description'] = this.description;
