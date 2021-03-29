@@ -108,114 +108,29 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(children: [
-        Positioned(
-          top: 0,
-          child: Container(
-            child: _image == null
-                ? Container(
-                    height: Get.width,
-                    width: Get.width,
-                    child: Center(
-                        child: Text(
-                      'No image selected.',
-                      style: TextStyle(fontSize: 20.0),
-                    )),
-                  )
-                : Container(
-                    height: Get.width,
-                    width: Get.width,
-                    child: Image.file(
-                      _image,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-          ),
-        ),
+        Positioned(top: 0, child: _buildPhotoTop()),
         Positioned(
           bottom: 0,
           child: Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(2, 2),
-                  blurRadius: 6,
-                  spreadRadius: 2,
-                  color: Color(0xFF303030).withOpacity(0.25),
-                )
-              ],
-              color: Color(0xFFFFBB24),
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(32), topRight: Radius.circular(32)),
-            ),
-            height: Get.height * 0.6,
-            width: Get.width,
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: SingleChildScrollView(
-                child: _outputs != null
-                    // && _outputs[0]["confidence"] > 0.85
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                width: Get.width * 0.5,
-                                child: Text(
-                                  mockData[int.tryParse(indexTrim)]["title"],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                              mockData[int.tryParse(indexTrim)]["description"]),
-                        ],
-                      )
-                    : Container(),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 300,
-          left: 32,
-          child: Container(
-            child: _image != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.file(
-                      _image,
-                      fit: BoxFit.fill,
-                    ),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    offset: Offset(2, 2),
+                    blurRadius: 6,
+                    spreadRadius: 2,
+                    color: Color(0xFF303030).withOpacity(0.25),
                   )
-                : Image.asset("assets/logo.png"),
-            decoration: BoxDecoration(
-              border: Border.all(width: 2.0, color: const Color(0xFFFFFFFF)),
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(2, 2),
-                  blurRadius: 6,
-                  spreadRadius: 2,
-                  color: Color(0xFF303030).withOpacity(0.25),
-                )
-              ],
-            ),
-            height: Get.height * 0.2,
-            width: Get.width * 0.3,
-          ),
+                ],
+                color: Color(0xFFFFBB24),
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(32),
+                    topRight: Radius.circular(32)),
+              ),
+              height: Get.height * 0.6,
+              width: Get.width,
+              child: _buildContext()),
         ),
+        Positioned(top: 300, left: 32, child: _buildLayoutShowImage()),
         Positioned(
           right: 20.0,
           top: 80.0,
@@ -223,13 +138,112 @@ class _MyHomePageState extends State<MyHomePage> {
             backgroundColor: Color(0xFFFFBB24),
             onPressed: () {
               _showPicker(context);
-              // pickImage();
             },
             tooltip: 'add photo',
             child: Icon(Icons.add_a_photo),
           ),
         ),
       ]),
+    );
+  }
+
+  Widget _buildLayoutShowImage() {
+    return Container(
+      child: _image != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.file(
+                _image,
+                fit: BoxFit.fill,
+              ),
+            )
+          : Image.asset("assets/logo.png"),
+      decoration: BoxDecoration(
+        border: Border.all(width: 2.0, color: const Color(0xFFFFFFFF)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(2, 2),
+            blurRadius: 6,
+            spreadRadius: 2,
+            color: Color(0xFF303030).withOpacity(0.25),
+          )
+        ],
+      ),
+      height: Get.height * 0.2,
+      width: Get.width * 0.3,
+    );
+  }
+
+  Widget _buildContext() {
+    return Padding(
+      padding: EdgeInsets.all(32),
+      child: SingleChildScrollView(
+          child: _outputs != null
+              ? _outputs[0]["confidence"] > 0.90
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: Get.width * 0.5,
+                              child: Text(
+                                mockData[int.tryParse(indexTrim)]["title"],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        Text(mockData[int.tryParse(indexTrim)]["description"]),
+                      ],
+                    )
+                  : Container(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 180.0),
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "ไม่สามารถระบุได้",
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            )),
+                      ),
+                    )
+              : Container()),
+    );
+  }
+
+  Widget _buildPhotoTop() {
+    return Container(
+      child: _image == null
+          ? Container(
+              height: Get.width,
+              width: Get.width,
+              child: Center(
+                  child: Text(
+                'No image selected.',
+                style: TextStyle(fontSize: 20.0),
+              )),
+            )
+          : Container(
+              height: Get.width,
+              width: Get.width,
+              child: Image.file(
+                _image,
+                fit: BoxFit.fill,
+              ),
+            ),
     );
   }
 
@@ -240,18 +254,21 @@ class _MyHomePageState extends State<MyHomePage> {
           return SafeArea(
             child: Container(
               child: Wrap(
-                children: <Widget>[
+                children: [
                   ListTile(
-                      leading: Icon(Icons.photo_library),
-                      title: Text('Photo Library'),
-                      onTap: () {
-                        pickImage(FileType.Gallery);
-                      }),
+                    leading: Icon(Icons.photo_library),
+                    title: Text('Photo Library'),
+                    onTap: () {
+                      pickImage(FileType.Gallery);
+                      Navigator.pop(context);
+                    },
+                  ),
                   ListTile(
                     leading: Icon(Icons.photo_camera),
                     title: Text('Camera'),
                     onTap: () {
                       pickImage(FileType.Camera);
+                      Navigator.pop(context);
                     },
                   ),
                 ],
