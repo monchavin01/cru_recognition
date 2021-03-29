@@ -1,6 +1,0 @@
-0 building-15
-1 building-28
-2 building-it
-3 building-physical-education
-4 building-welfare
-5 gym

@@ -108,40 +108,45 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(children: [
-        Positioned(top: 0, child: _buildPhotoTop()),
-        Positioned(
-          bottom: 0,
-          child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    offset: Offset(2, 2),
-                    blurRadius: 6,
-                    spreadRadius: 2,
-                    color: Color(0xFF303030).withOpacity(0.25),
-                  )
-                ],
-                color: Color(0xFFFFBB24),
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32)),
-              ),
-              height: Get.height * 0.6,
-              width: Get.width,
-              child: _buildContext()),
-        ),
-        Positioned(top: 300, left: 32, child: _buildLayoutShowImage()),
-        Positioned(
-          right: 20.0,
-          top: 80.0,
-          child: FloatingActionButton(
-            backgroundColor: Color(0xFFFFBB24),
-            onPressed: () {
-              _showPicker(context);
-            },
-            tooltip: 'add photo',
-            child: Icon(Icons.add_a_photo),
+        Stack(children: [
+          Positioned(top: 0, child: _buildPhotoTop()),
+          Positioned(
+            bottom: 0,
+            child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(2, 2),
+                      blurRadius: 6,
+                      spreadRadius: 2,
+                      color: Color(0xFF303030).withOpacity(0.25),
+                    )
+                  ],
+                  color: Color(0xFFFFBB24),
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32)),
+                ),
+                height: Get.height * 0.6,
+                width: Get.width,
+                child: _buildContext()),
           ),
+          Positioned(
+            right: 20.0,
+            top: 80.0,
+            child: FloatingActionButton(
+              backgroundColor: Color(0xFFFFBB24),
+              onPressed: () {
+                _showPicker(context);
+              },
+              tooltip: 'add photo',
+              child: Icon(Icons.add_a_photo),
+            ),
+          ),
+        ]),
+        Padding(
+          padding: const EdgeInsets.only(left: 32, top: 230),
+          child: _buildLayoutShowImage(),
         ),
       ]),
     );
