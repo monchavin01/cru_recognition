@@ -208,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                         SizedBox(
-                          height: 16,
+                          height: 64,
                         ),
                         Text(mockData[int.tryParse(indexTrim)]["description"]),
                       ],

@@ -1,13 +1,9 @@
-// 0 building_15
-// 1 building_28
-// 2 building_it
-// 3 building_physical_education
 List mockData = [
   {
     // 0
     "title": "อาคารจันทรากาญจนาภิเษก(อาคาร 15)",
     "location": "6",
-    "description": ""
+    "description": "มีโรงอาหารอยู่ภายในชั้น 1"
   },
   {
     // 1
@@ -25,18 +21,18 @@ List mockData = [
     // 3
     "title": "อาคารศูนย์เรียนรวม",
     "location": "2",
-    "description": ""
+    "description": "ใช้เป็นอาคารศูนย์เรียนรวม"
   },
   {
     // 4
     "title": "อาคารกิจการนักศึกษา",
     "location": "3",
-    "description": ""
+    "description": "ด้างล่างถูกจัดให้เป็นร้านสวัสดิการ และห้องพยาบาล"
   },
   {
     // 5
     "title": " โรงยิม 1",
     "location": "1",
-    "description": ""
+    "description": "สนามกีฬาในร่ม"
   },
 ];
