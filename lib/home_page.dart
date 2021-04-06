@@ -145,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ]),
         Padding(
-          padding: const EdgeInsets.only(left: 32, top: 230),
+          padding: const EdgeInsets.only(left: 32, top: 300),
           child: _buildLayoutShowImage(),
         ),
       ]),
@@ -208,11 +208,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                         SizedBox(
-                          height: 64,
+                          height: 72,
                         ),
                         Text(mockData[int.tryParse(indexTrim)]["description"]),
-                        SizedBox(height: 8),
-                        Image.asset(mockData[int.tryParse(indexTrim)]["map"])
+                        SizedBox(height: 16),
+                        ClipRRect(
+                            borderRadius: BorderRadius.circular(32),
+                            child: Image.asset(
+                                mockData[int.tryParse(indexTrim)]["map"]))
                       ],
                     )
                   : Container(
