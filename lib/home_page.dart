@@ -211,6 +211,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           height: 64,
                         ),
                         Text(mockData[int.tryParse(indexTrim)]["description"]),
+                        SizedBox(height: 8),
+                        Image.asset(mockData[int.tryParse(indexTrim)]["map"])
                       ],
                     )
                   : Container(
