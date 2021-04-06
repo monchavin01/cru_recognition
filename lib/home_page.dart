@@ -132,8 +132,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: _buildContext()),
           ),
           Positioned(
-            right: 20.0,
-            top: 80.0,
+            right: Get.width / 15,
+            top: Get.width / 6,
             child: FloatingActionButton(
               backgroundColor: Color(0xFFFFBB24),
               onPressed: () {
@@ -144,8 +144,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ]),
-        Padding(
-          padding: const EdgeInsets.only(left: 32, top: 300),
+        Positioned(
+          left: Get.width / 13,
+          top: Get.width / 1.5,
           child: _buildLayoutShowImage(),
         ),
       ]),
