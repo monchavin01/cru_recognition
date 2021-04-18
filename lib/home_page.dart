@@ -208,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                         SizedBox(
-                          height: 16,
+                          height: Get.height * 0.05,
                         ),
                         Text(
                           'คำอธิบาย',
