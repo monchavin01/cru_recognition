@@ -97,10 +97,16 @@ class _MyHomePageState extends State<MyHomePage> {
         _result = _outputs[0]["label"].toString();
         index = _result.substring(0, 2);
         indexTrim = index.trim();
+        titleFormat();
       } catch (e) {
         print(e);
       }
     });
+  }
+
+  String titleFormat() {
+    List<String> value = _outputs[0]["label"].toString().split(" ");
+    return value[1].replaceAll("-", " ");
   }
 
   @override
@@ -259,7 +265,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildFloorReserve(indexs) {
-    print(indexs);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
         FutureBuilder(
           future: FirebaseFirestore.instance
               .collection("reservation-classroom")
-              .doc('building 15')
+              .doc(titleFormat())
               .collection(indexs.toString())
               .orderBy("date", descending: false)
               .get(),
