@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cru_recognition/models/data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -94,10 +95,8 @@ class _MyHomePageState extends State<MyHomePage> {
         _loading = false;
         _outputs = output;
         _result = _outputs[0]["label"].toString();
-        print(_outputs[0]["confidence"]);
         index = _result.substring(0, 2);
         indexTrim = index.trim();
-        print(indexTrim);
       } catch (e) {
         print(e);
       }
@@ -187,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
       padding: EdgeInsets.all(32),
       child: SingleChildScrollView(
           child: _outputs != null
-              ? _outputs[0]["confidence"] > 0.90
+              ? _outputs[0]["confidence"] > 0.6
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -199,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Text(
                                 mockData[int.tryParse(indexTrim)]["title"],
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -209,29 +208,151 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                         SizedBox(
-                          height: 72,
+                          height: 16,
+                        ),
+                        Text(
+                          'คำอธิบาย',
+                          style: TextStyle(fontSize: 16),
                         ),
                         Text(mockData[int.tryParse(indexTrim)]["description"]),
+                        // Text(mockData[int.tryParse(indexTrim)]["floor"]),
+                        SizedBox(height: 16),
+                        Column(
+                          children: [
+                            Text(
+                              'รายการจองห้องเรียน',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            for (var i in mockData[int.tryParse(indexTrim)]
+                                ["floor"])
+                              _buildFloorReserve(i)
+                          ],
+                        ),
+                        // _buildFloorReserve(mockData[int.tryParse(indexTrim)]["floor"]),
                         SizedBox(height: 16),
                         ClipRRect(
                             borderRadius: BorderRadius.circular(32),
                             child: Image.asset(
-                                mockData[int.tryParse(indexTrim)]["map"]))
+                                mockData[int.tryParse(indexTrim)]["map"])),
                       ],
                     )
-                  : Container(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 180.0),
-                        child: Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              "ไม่สามารถระบุได้",
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            )),
-                      ),
+                  : Column(
+                      children: [
+                        Container(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 180.0),
+                            child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "ไม่สามารถระบุสถานที่ได้ \n ลองเปลี่ยนมุมถ่ายดูนะ",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                          ),
+                        ),
+                      ],
                     )
               : Container()),
+    );
+  }
+
+  Widget _buildFloorReserve(indexs) {
+    print(indexs);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ชั้น $indexs',
+          style: TextStyle(fontSize: 16),
+        ),
+        FutureBuilder(
+          future: FirebaseFirestore.instance
+              .collection("reservation-classroom")
+              .doc('building 15')
+              .collection(indexs.toString())
+              .orderBy("date", descending: false)
+              .get(),
+          builder: (context, snapshot) {
+            return (snapshot.connectionState == ConnectionState.waiting)
+                ? Center(child: CircularProgressIndicator())
+                : snapshot.data.documents.length > 0
+                    ? ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        // controller: _controller, //new line
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.only(left: 16, right: 16),
+                        itemCount: snapshot.data.documents.length,
+                        itemBuilder: (context, index) {
+                          return _buildScheduleList(context, index, snapshot);
+                        },
+                      )
+                    : Container(
+                        padding: EdgeInsets.only(top: 4, bottom: 4),
+                        child: Text(' ไม่มีการจอง'),
+                        alignment: Alignment.topLeft,
+                      );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScheduleList(
+      BuildContext context, index, AsyncSnapshot snapshot) {
+    DocumentSnapshot data = snapshot.data.docs[index];
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey[500], spreadRadius: 0.2, blurRadius: 2),
+          ],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('ห้อง'),
+                SizedBox(width: 16),
+                Text(data.data()['roomNumber'])
+              ],
+            ),
+            Row(
+              children: [
+                Text('วิชา'),
+                SizedBox(width: 16),
+                Text(data.data()['subject'])
+              ],
+            ),
+            Row(
+              children: [
+                Text('วันที่'),
+                SizedBox(width: 16),
+                Text(data.data()['date'])
+              ],
+            ),
+            Row(
+              children: [
+                Text('เวลา'),
+                SizedBox(width: 16),
+                Text(data.data()['timeFromSchedule']),
+                SizedBox(width: 16),
+                Text('ถึง'),
+                SizedBox(width: 16),
+                Text(data.data()['timeToSchedule'])
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 

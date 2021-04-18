@@ -34,6 +34,8 @@ dependencies:
     git:
       url: https://github.com/knaeckeKami/plugins.git
       path: packages/image_picker/image_picker
+  cloud_firestore: ^0.14.0+2
+  firebase_core:
       
 dev_dependencies:
   flutter_test:
