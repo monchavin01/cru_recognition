@@ -70,15 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
           print(e);
         }
       });
-      // if (image == null) return null;
-      // setState(() {
-      //   try {
-      //     _loading = true;
-      //     _image = File(image.path);
-      //   } catch (e) {
-      //     print(e);
-      //   }
-      // });
     }
     classifyImage(_image);
   }
